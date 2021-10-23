@@ -36,6 +36,22 @@ yarn add with-firebase-user
 
 This library attempts to cache the public keys that the Firebase Auth JWT's are signed with. To do this you need to add some configuration to your Vercel project to be able to read/write the file system. Here is the documentation for how this works: [How can I use files in serverless functions](https://vercel.com/support/articles/how-can-i-use-files-in-serverless-functions#node.js). By default the library uses a file called `cachedPublicKeys.json`.
 
+### Instructions
+
+Create `_files/cachedPublicKeys.json` in the root of your Next project.
+
+Update your Vercel config to include the `_files` directory for relevant serverless functions.
+
+```json
+{
+  "functions": {
+    "pages/api/user.js": {
+      "includeFiles": "_files/**"
+    }
+  }
+}
+```
+
 For NextJS currently you need to enable an expirimental feature called `nftTracing` as well for the filesystem caching to work. See [this issue](https://github.com/vercel/next.js/issues/8251#issuecomment-915287535) for more details.
 
 ### Instructions
@@ -46,8 +62,10 @@ yarn add next@canary
 
 Add the following to your projects `next.config.js`
 
-```
-experimental: { nftTracing: true }
+```javascript
+experimental: {
+  nftTracing: true;
+}
 ```
 
 ## Usage

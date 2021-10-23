@@ -67,13 +67,13 @@ export const withFirebaseUser =
       try {
         if (!publicKeys && freshKeys) {
           await updateCachedKeys(cacheFilename, freshKeys);
-          publicKeys = freshKeys;
         }
       } catch (err) {
         if (err instanceof Error) {
           console.info('withFirebaseUser: ', err.message);
         }
       }
+      publicKeys = freshKeys;
     } catch (err) {
       if (err instanceof Error) {
         console.info('withFirebaseUser: ', err.message);
