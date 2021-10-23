@@ -4,6 +4,13 @@ import path from 'path';
 export function getCachedKeys(filename: string): Promise<Record<string, any>> {
   const error = new Error('Failed to load cached public keys');
   return new Promise((resolve, reject) => {
+    const filesPath = path.join(process.cwd(), '_files');
+    console.log(filesPath);
+    fs.readdir(filesPath, (err, files) => {
+      files.forEach((file) => {
+        console.log(file);
+      });
+    });
     fs.readFile(path.join(process.cwd(), '_files', filename), (err, data) => {
       if (err) {
         reject(error);

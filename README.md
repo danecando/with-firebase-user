@@ -81,6 +81,17 @@ interface WithFirebaseUserOptions {
 }
 ```
 
+### FirebaseUser added to request
+
+```typescript
+export interface FirebaseUser {
+  name?: string;
+  user_id: string;
+  email?: string;
+  email_verified?: boolean;
+}
+```
+
 ## Contributing
 
 If you decide to use this library and find any issues please open a new issue reporting the bug. If you'd like to contribute some code, open a PR! :) Thanks

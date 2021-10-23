@@ -103,6 +103,6 @@ export const withFirebaseUser =
       console.error('withFirebaseUser: ', err);
     }
 
-    // success, call decorated handler with our decorated req arg
+    // hopefully success, call decorated handler with our decorated req arg
     return handler(decoratedReq, res);
   };
