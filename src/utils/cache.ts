@@ -6,7 +6,7 @@ export function getCachedKeys(filename: string): Promise<Record<string, any>> {
   return new Promise((resolve, reject) => {
     const filesPath = path.join(process.cwd(), '_files');
     console.log(filesPath);
-    fs.readdir(filesPath, (err, files) => {
+    fs.readdir(filesPath, (_, files) => {
       files.forEach((file) => {
         console.log(file);
       });
