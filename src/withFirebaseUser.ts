@@ -70,7 +70,7 @@ export const withFirebaseUser =
         }
       } catch (err) {
         if (err instanceof Error) {
-          console.info('withFirebaseUser: ', err.message);
+          console.debug('withFirebaseUser: ', err.message);
         }
       }
       publicKeys = freshKeys;
@@ -111,7 +111,7 @@ export const withFirebaseUser =
         }
       }
     } catch (err) {
-      console.error('withFirebaseUser: ', err);
+      console.info('withFirebaseUser: ', err);
     }
 
     return handler(decoratedReq, res);
