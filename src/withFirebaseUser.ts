@@ -45,7 +45,6 @@ export const withFirebaseUser =
     }
 
     let publicKeys: Record<string, any> | undefined;
-
     // try to pull public keys from cache
     try {
       const cachedKeys = await getCachedKeys(cacheFilename);
@@ -56,12 +55,24 @@ export const withFirebaseUser =
       ) {
         publicKeys = cachedKeys;
       }
+    } catch (err) {
+      if (err instanceof Error) {
+        console.debug('withFirebaseUser: ', err.message);
+      }
+    }
 
-      // otherwise fetch new public keys and save to cache file
-      if (!publicKeys) {
-        const freshKeys = await fetchPublicKeys();
-        await updateCachedKeys(cacheFilename, freshKeys);
-        publicKeys = freshKeys;
+    // if no keys in cache, fetch new and attempt to save to cache
+    try {
+      const freshKeys = await fetchPublicKeys();
+      try {
+        if (!publicKeys && freshKeys) {
+          await updateCachedKeys(cacheFilename, freshKeys);
+          publicKeys = freshKeys;
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          console.info('withFirebaseUser: ', err.message);
+        }
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -103,6 +114,5 @@ export const withFirebaseUser =
       console.error('withFirebaseUser: ', err);
     }
 
-    // success, call decorated handler with our decorated req arg
     return handler(decoratedReq, res);
   };
