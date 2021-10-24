@@ -1,10 +1,6 @@
-# use-firebase-user (wip)
+# use-firebase-user
 
 A higher order function that decodes a Firebase Auth JWT and decorates the NextJS API request object with a Firebase user.
-
-### Warning
-
-This software is currently experimental as I haven't written any tests or validated it in production for any period of time. I have only briefly tested it during the development of a project I am working on.
 
 ## Introduction
 
@@ -13,7 +9,7 @@ I wanted to use Firebase Auth to authenticate and secure routes in my NextJS API
 **The Problem**
 
 - Unable to add middleware to express middleware chain for NextJS API routes.
-- Don't want to add the large Firebase Admin library for light weight serverless functions on Vercel.
+- Don't want to add a large library for a lightweight operation to be run on a serverless function.
 
 **My Solution**
 
@@ -30,42 +26,6 @@ or
 
 ```bash
 yarn add with-firebase-user
-```
-
-## Configure Caching on Vercel
-
-This library attempts to cache the public keys that the Firebase Auth JWT's are signed with. To do this you need to add some configuration to your Vercel project to be able to read/write the file system. Here is the documentation for how this works: [How can I use files in serverless functions](https://vercel.com/support/articles/how-can-i-use-files-in-serverless-functions#node.js). By default the library uses a file called `cachedPublicKeys.json`.
-
-### Instructions
-
-Create `_files/cachedPublicKeys.json` in the root of your Next project.
-
-Update your Vercel config to include the `_files` directory for relevant serverless functions.
-
-```json
-{
-  "functions": {
-    "pages/api/user.js": {
-      "includeFiles": "_files/**"
-    }
-  }
-}
-```
-
-For NextJS currently you need to enable an expirimental feature called `nftTracing` as well for the filesystem caching to work. See [this issue](https://github.com/vercel/next.js/issues/8251#issuecomment-915287535) for more details.
-
-### Instructions
-
-```
-yarn add next@canary
-```
-
-Add the following to your projects `next.config.js`
-
-```javascript
-experimental: {
-  nftTracing: true;
-}
 ```
 
 ## Usage
@@ -108,11 +68,7 @@ const withFirebaseUser: (
 
 ```typescript
 interface WithFirebaseUserOptions {
-  cacheFilename?: string; // defaults to `cachedPublicKeys.json`
+  clientCertUrl?: string; // defaults to url provided in Firebase auth docs
   projectId?: string; // verifies the audience and issuer of the JWT when provided
 }
 ```
-
-## Contributing
-
-If you decide to use this library and find any issues please open a new issue reporting the bug. If you'd like to contribute some code, open a PR! :) Thanks

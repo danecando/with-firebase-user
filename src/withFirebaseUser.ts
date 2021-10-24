@@ -3,11 +3,12 @@ import type { NextApiRequestWithFirebaseUser, FirebaseUser } from './types';
 import jwt from 'jsonwebtoken';
 import { getBearerToken } from './utils/headers';
 import { decodeJwtHeader } from './utils/jwt';
-import { getCachedKeys, updateCachedKeys } from './utils/cache';
 import { fetchPublicKeys } from './utils/fetchPublicKeys';
 
+const FIREBASE_AUTH_CERT_URL =
+  'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
 interface WithFirebaseUserOptions {
-  cacheFilename?: string;
+  clientCertUrl?: string;
   projectId?: string;
 }
 
@@ -21,10 +22,10 @@ export const withFirebaseUser =
   ) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
     // merge options with defaults
-    const { cacheFilename, projectId } = Object.assign(
+    const { projectId, clientCertUrl } = Object.assign(
       {},
       {
-        cacheFilename: 'cachedPublicKeys.json',
+        clientCertUrl: FIREBASE_AUTH_CERT_URL,
       },
       options
     );
@@ -44,61 +45,20 @@ export const withFirebaseUser =
       return handler(decoratedReq, res);
     }
 
-    let publicKeys: Record<string, any> | undefined;
-    // try to pull public keys from cache
     try {
-      const cachedKeys = await getCachedKeys(cacheFilename);
-      if (
-        cachedKeys &&
-        typeof cachedKeys.expires === 'number' &&
-        cachedKeys.expires > Date.now()
-      ) {
-        publicKeys = cachedKeys;
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        console.debug('withFirebaseUser: ', err.message);
-      }
-    }
+      const publicKeys = await fetchPublicKeys(clientCertUrl);
 
-    // if no keys in cache, fetch new and attempt to save to cache
-    try {
-      const freshKeys = await fetchPublicKeys();
-      try {
-        if (!publicKeys && freshKeys) {
-          await updateCachedKeys(cacheFilename, freshKeys);
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          console.debug('withFirebaseUser: ', err.message);
-        }
-      }
-      publicKeys = freshKeys;
-    } catch (err) {
-      if (err instanceof Error) {
-        console.info('withFirebaseUser: ', err.message);
-      }
-    }
-
-    // failed to get public keys from cache and server: epic fail
-    if (
-      !publicKeys ||
-      typeof publicKeys.keys !== 'object' ||
-      Object.values(publicKeys.keys).length < 1
-    ) {
-      return handler(decoratedReq, res);
-    }
-
-    try {
       // parse jwt header for public key id
       const jwtHeader = JSON.parse(decodeJwtHeader(accessToken));
-      const publicKey = publicKeys.keys[jwtHeader.kid];
+
+      const publicKey = publicKeys[jwtHeader.kid];
       if (publicKey) {
         // decode jwt with public key
         const decodedToken = jwt.verify(accessToken, publicKey, {
           audience: projectId,
           issuer: projectId && `https://securetoken.google.com/${projectId}`,
         });
+
         if (typeof decodedToken === 'object') {
           // create user object we decorate req with from decoded token
           const user: FirebaseUser = {
@@ -107,6 +67,7 @@ export const withFirebaseUser =
             email: decodedToken.email,
             email_verified: decodedToken.email_verified,
           };
+
           decoratedReq.user = user;
         }
       }
