@@ -36,7 +36,7 @@ Pass your NextJS handler to `withFirebaseUser` and it will add the authenticated
 import { withFirebaseUser } from 'with-firebase-user';
 
 const handler = async (req, res) => {
-  res.send(req.user);
+  res.send(req.user); // FirebaseUser
 };
 
 export default withFirebaseUser(handler);
@@ -50,6 +50,17 @@ fetch('/api/users', {
     Authorization: 'Bearer <JWT>',
   },
 });
+```
+
+### Decoded user data
+
+```ts
+interface FirebaseUser {
+  name?: string;
+  user_id: string;
+  email?: string;
+  email_verified?: boolean;
+}
 ```
 
 ## API
