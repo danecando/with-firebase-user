@@ -1,4 +1,4 @@
-# use-firebase-user
+# with-firebase-user
 
 A higher order function that decodes a Firebase Auth JWT and decorates the NextJS API request object with a Firebase user.
 
