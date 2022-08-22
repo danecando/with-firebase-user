@@ -81,5 +81,14 @@ const withFirebaseUser: (
 interface WithFirebaseUserOptions {
   clientCertUrl?: string; // defaults to url provided in Firebase auth docs
   projectId?: string; // verifies the audience and issuer of the JWT when provided
+  isEmulator?: boolean; // defaults to false
 }
 ```
+
+## Contributing
+
+Feel free
+
+## License
+
+Do whatever you want with this code
